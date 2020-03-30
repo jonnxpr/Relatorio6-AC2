@@ -25,7 +25,7 @@ public class Interpretador {
 
     private void lerArquivo(String nomeArq) {
         String buffer;
-        System.out.println("Lendo dados do arquivo: " + nomeArq);
+        System.out.println("Lendo comandos do arquivo: " + nomeArq);
 
         try (FileReader fr = new FileReader(nomeArq);
                 Scanner in = new Scanner(fr)) {
@@ -60,10 +60,11 @@ public class Interpretador {
                     fw.write(instrucao);
                 }
             }
+            
+            System.out.println("Arquivo .hex gerado com sucesso!\n\n");
         } catch (IOException e) {
             System.out.println("ERRO: Não foi possível abrir o arquivo para escrita desejado ou ocorreu algum erro no seu uso.");
         }
-
     }
 
     private String decodificaComando(String comando) {
@@ -89,7 +90,7 @@ public class Interpretador {
     
     private char recuperaOpcode(String comando){
         char opcode;
-        System.out.println("Comando = " + comando);
+        //System.out.println("Comando = " + comando);
         switch(comando){
             case "zeroL;":
                 opcode = '0';
