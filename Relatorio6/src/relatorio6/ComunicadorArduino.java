@@ -45,9 +45,9 @@ public class ComunicadorArduino {
     
     private String decodificaInstrucao(String instrucao){
         StringBuilder instrucaoDecodificada = new StringBuilder();
-        instrucaoDecodificada.append(hexaParaDec(instrucao.charAt(0))).append(" ");
-        instrucaoDecodificada.append(hexaParaDec(instrucao.charAt(1))).append(" ");
-        instrucaoDecodificada.append(hexaParaDec(instrucao.charAt(2)));
+        instrucaoDecodificada.append(instrucao.charAt(0)).append(" ");
+        instrucaoDecodificada.append(instrucao.charAt(1)).append(" ");
+        instrucaoDecodificada.append(instrucao.charAt(2));
         
         return instrucaoDecodificada.toString();
     }
