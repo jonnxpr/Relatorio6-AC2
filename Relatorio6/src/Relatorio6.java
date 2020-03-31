@@ -7,7 +7,7 @@ import java.io.FileReader;
 
 /**
  *
- * @author Jonathan
+ * @author Jonathan e Stenio
  */
 public class Relatorio6 {
 
