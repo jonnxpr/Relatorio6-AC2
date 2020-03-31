@@ -3,170 +3,194 @@
  * Alunos: Jonathan e Stenio
  */
  
-int a0 = 0;   
-int b0 = 0;
-int opcode = 0;   
-int ledA = 13;
-int ledB = 12;
-int ledSaida = 11;
-int ledVaiUm = 10;
-int saida;
+int A = 0;   
+int B = 0;
+int opcode = 0;
+int saida = 0;
+   
+int ledF0 = 10;
+int ledF1 = 11;
+int ledF2 = 12;
+int ledF3 = 13;
+
+const int logico0 = 0000;
+const int logico1 = 1111;
+
+String entrada;
 
 void setup() {
   Serial.begin(9600);     
-  pinMode(ledA,OUTPUT);
-  pinMode(ledB,OUTPUT);
-  pinMode(ledSaida,OUTPUT);
-  pinMode(ledVaiUm,OUTPUT);
+  pinMode(ledF0, OUTPUT);
+  pinMode(ledF1, OUTPUT);
+  pinMode(ledF2, OUTPUT);
+  pinMode(ledF3, OUTPUT);
 }
 
+int selecionaOpcode()
+{
+  unsigned int resposta;
 
-void loop() {
-  if (Serial.available() > 0) {
-    a0 = Serial.parseInt();
-    b0 = Serial.parseInt();
-    opcode = Serial.parseInt();
-    
-    Serial.print("a= ");
-    Serial.print(a0);
-    Serial.println();
-    Serial.print("b= ");
-    Serial.print(b0);
-    Serial.println();
-    Serial.print(opcode);
-    Serial.println();
-    
-    if (Serial.read()=='\n') {
-      if (opcode == 0) {
-        saida = portaand(a0, b0);
-        Serial.print("and= ");
-        Serial.print(saida);
-        Serial.println();
-        if (a0 == 1){
-          digitalWrite(ledA, 1);
-        }
-        if (a0 == 0){
-          digitalWrite(ledA, 0);
-        }
+  switch(opcode){
+    case '0':
+      resposta = logico0;
+      break;
+    case '1':
+      resposta = logico1;
+      break;
+    case '2':
+      resposta = NOT(A);
+      break;
+    case '3':
+      resposta = NOT(B);
+      break;
+    case '4':
+      resposta = OR(A, B);
+      break;
+    case '5':
+      resposta = AND(A, B);
+      break;
+    case '6':
+      resposta = XOR(A, B);
+      break;
+    case '7':
+      resposta = NAND(A, B);
+      break;
+    case '8':
+      resposta = NOR(A, B);
+      break;
+    case '9':
+      resposta = XNOR(A, B);
+      break;
+    case 'A':
+      resposta = OR(NOT(A), B);
+      break;
+    case 'B':
+      resposta = OR(A, NOT(B));
+      break;
+    case 'C':
+      resposta = AND(NOT(A), B);
+      break;
+    case 'D':
+      resposta = AND(A, NOT(B));
+      break;
+    case 'E':
+      resposta = OR(NOT(A), NOT(B));
+      break;
+    case 'F':
+      resposta = AND(NOT(A), NOT(B));
+      break;
+  }
 
-        if (b0 == 1){
-          digitalWrite(ledB, 1);
-        }
-        if (b0 == 0){
-          digitalWrite(ledB, 0);
-        }
-        
-        if (saida == 1){
-          digitalWrite(ledSaida, 1);
-        } else {
-          digitalWrite(ledSaida, 0);
-        }
-      } else if (opcode == 1) {
-        saida = portaor(a0, b0);
-        Serial.print("or= ");
-        Serial.print(saida);
-        Serial.println();
+  return resposta;
+}
 
-        if (a0 == 1){
-          digitalWrite(ledA, 1);
-        }
-        if (a0 == 0){
-          digitalWrite(ledA, 0);
-        }
+int hexaParaDec(char valor)
+{
+  int resposta;
+  
+  if(isAlpha(valor))
+  {
+    resposta = (int)valor - 55;
+  } else {
+    resposta = (int)valor - 48;
+  }
+  
+  return resposta;
+}
 
-        if (b0 == 1){
-          digitalWrite(ledB, 1);
-        }
-        if (b0 == 0){
-          digitalWrite(ledB, 0);
-        }
-        
-        if (saida == 1){
-          digitalWrite(ledSaida, 1);
-        } else {
-          digitalWrite(ledSaida, 0);
-        }
-      } else if (opcode == 2) {
-        saida = portanot(a0);
-        Serial.print("not a0= ");
-        Serial.print(saida);
-        Serial.println();
-
-        if (a0 == 1){
-          digitalWrite(ledA, 1);
-        }
-        if (a0 == 0){
-          digitalWrite(ledA, 0);
-        }
-
-        if (b0 == 1){
-          digitalWrite(ledB, 1);
-        }
-        if (b0 == 0){
-          digitalWrite(ledB, 0);
-        }
-        
-        if (saida == -2){
-          digitalWrite(ledSaida, 0);
-        }
-        if (saida == -1){
-          digitalWrite(ledSaida, 1);
-        }
-      } else if (opcode == 3) {
-        saida = sum(a0, b0);
-        Serial.print("saida sum= ");
-        Serial.print(saida);
-        Serial.println();
-
-        if (a0 == 1){
-          digitalWrite(ledA, 1);
-        }
-        if (a0 == 0){
-          digitalWrite(ledA, 0);
-        }
-
-        if (b0 == 1){
-          digitalWrite(ledB, 1);
-        }
-        if (b0 == 0){
-          digitalWrite(ledB, 0);
-        }
-        
-        if (saida == 0){
-          digitalWrite(ledSaida, 0);
-          digitalWrite(ledVaiUm, 0);
-        } else if (saida == 1){
-          digitalWrite(ledSaida, 1);
-          digitalWrite(ledVaiUm, 0);
-        } else if (saida > 1){
-          digitalWrite(ledSaida, 1);
-          digitalWrite(ledVaiUm, 1);
-        }
-      } 
-    }  
+void mostrarSaida(int valor){
+  int temp = valor;
+  if(valor < 0){
+      temp = valor + 16;
+  }
+  
+  if ((temp >= 8) && ((temp -= 8) >= 0))
+  {
+    digitalWrite(ledF0, 1);
+  } else {
+    digitalWrite(ledF0, 0);
+  }
+  
+  if((temp >= 4) && ((temp -= 4) >= 0))
+  {
+    digitalWrite(ledF1, 1);
+  } else {
+    digitalWrite(ledF1, 0);
+  }
+  
+  if((temp >= 2) && ((temp -= 2) >= 0))
+  {
+    digitalWrite(ledF2, 1);
+  } else {
+    digitalWrite(ledF2, 0);
+  }
+  
+  if((temp >= 1) && ((temp -= 1) >= 0))
+  {
+    digitalWrite(ledF3, 1);
+  } else {
+    digitalWrite(ledF3, 0);
   }
 }
 
-int portaxor(int a, int b)
+int XOR(int valor1, int valor2)
 {
-  return(a^b);
+  return (valor1^valor2);
 }
 
-int portaor(int a, int b)
+int XNOR(int valor1, int valor2)
 {
-  return(a|b);
+  return ~(valor1 ^ valor2);
 }
 
-int portaand(int a, int b)
+int OR(int valor1, int valor2)
 {
-  return(a&b);
+  return (valor1 | valor2);
 }
 
-int portanot(int a)
+int NOR(int valor1, int valor2)
 {
-  return(~a);
+  return ~(valor1 | valor2);
 }
 
-int sum(int a, int b){
-  return a+b;
+int AND(int valor1, int valor2)
+{
+  return (valor1 & valor2);
+}
+
+int NAND(int valor1, int valor2)
+{
+  return ~(valor1 & valor2);
+}
+
+int NOT(int valor)
+{
+  return (~valor);
+}
+
+void loop() {
+  if (Serial.available() > 0) 
+  {
+    entrada = Serial.readString();
+
+    A = hexaParaDec(entrada.charAt(0));
+    B = hexaParaDec(entrada.charAt(2));
+    opcode = hexaParaDec(entrada.charAt(4));
+    
+    if (Serial.read()=='\n') 
+    {  
+      Serial.print("A= ");
+      Serial.print(A);
+      Serial.println();
+      Serial.print("B= ");
+      Serial.print(B);
+      Serial.println();
+      Serial.print("Opcode= ");
+      Serial.print(opcode);
+      Serial.println();
+
+      saida = selecionaOpcode();
+      mostrarSaida(saida);
+    }
+  }
 }
